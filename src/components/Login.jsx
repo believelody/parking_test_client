@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useAppHook } from '../contexts'
 import api from '../api'
 import devices from '../utils/devices'
-import { AUTH_FAILED, AUTH_SUCCESS } from '../reducers/userReducer';
+import { AUTH_FAILED, AUTH_SUCCESS, DISCONNECTED } from '../reducers/userReducer';
 import setAuth from '../utils/setAuth';
 
 const LoginStyle = styled.div`
@@ -16,8 +16,6 @@ const LoginStyle = styled.div`
   align-content: center;
 
   & .login-form {
-    display: flex;
-    flex-direction: column;
     width: 60%;
     height: auto;
     border: 2px solid black;
@@ -25,9 +23,14 @@ const LoginStyle = styled.div`
     margin: auto;
     padding: 10px;
 
-    & * {
-      padding: 5px 0;
-      margin: 20px 0;
+    & > form {
+      display: flex;
+      flex-direction: column;
+
+      & * {
+        padding: 5px 0;
+        margin: 20px 0;
+      }
     }
   }
 
@@ -40,8 +43,8 @@ const Login = () => {
   const { useUser } = useAppHook()
   const [{errors, isConnected}, dispatch] = useUser
 
-  const [email, setEmail] = useState()
-  const [password, setPassword] = useState()
+  const [email, setEmail] = useState(null)
+  const [password, setPassword] = useState(null)
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -56,18 +59,18 @@ const Login = () => {
       dispatch({ type: AUTH_SUCCESS, payload: decoded })
     } catch (error) {
       const { email, password } = error.response.data
-      setEmail('')
-      setPassword('')
+      setEmail(null)
+      setPassword(null)
       if (email) dispatch({ type: AUTH_FAILED, payload: email})     
       if (password) dispatch({ type: AUTH_FAILED, payload: password})     
     }
   }
 
   useEffect(() => {
-    if (errors) {
-      if (errors.email) alert(errors.email)
-      if (errors.password) alert(errors.password)
-    }
+    console.log(errors)
+    if (errors && errors.email) alert(errors.email)
+    if (errors && errors.password) alert(errors.password)
+    return () => dispatch({ type: DISCONNECTED })
   }, [errors])
 
   // useEffect(() => {
@@ -78,12 +81,14 @@ const Login = () => {
 
   return !localStorage.token ?
     <LoginStyle>
-      <form className='login-form' onSubmit={handleSubmit}>
-        <input required type='email' placeholder='enter your email' onChange={e => setEmail(e.target.value)} />
-        <input required type='password' placeholder='enter your password' onChange={e => setPassword(e.target.value)} />
-        <input type='submit' value='Login' />
+      <div className='login-form'>
+        <form onSubmit={handleSubmit}>
+          <input required type='email' placeholder='enter your email' onChange={e => setEmail(e.target.value)} />
+          <input required type='password' placeholder='enter your password' onChange={e => setPassword(e.target.value)} />
+          <input type='submit' value='Login' />
+        </form>
         <Link to='/register'>Create an account</Link>
-      </form>
+      </div>
     </LoginStyle>
     :
     <Redirect to='/' />

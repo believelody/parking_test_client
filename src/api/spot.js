@@ -4,7 +4,7 @@ import { baseUrl } from '.';
 export default {
     fetchAllSpots: () => axios.get(`${baseUrl}/spots`),
     fetchOneSpot: id => axios.get(`${baseUrl}/spots/${id}`),
-    createSpot: data => axios.post(`${baseUrl}/spots`),
+    createSpot: data => axios.post(`${baseUrl}/spots`, data),
     getFreeSpots: () => axios.get(`${baseUrl}/spots/free`),
     searchByUser: userId => axios.get(`${baseUrl}/spots/search-by-user?user=${userId}`),
     assignSpotToUser: (spotId, userId) => axios.put(`${baseUrl}/spots/${spotId}`, {userId}),

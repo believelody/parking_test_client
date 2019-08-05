@@ -6,6 +6,7 @@ import Home from './components/Home';
 import Parking from './components/Parking';
 import Login from './components/Login';
 import Register from './components/Register';
+import CreateSpot from './components/CreateSpot';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Switch>
         <AuthRoute exact path='/' component={Home} />
         <AuthRoute exact path='/parking' component={Parking} />
+        <AuthRoute exact path='/create-spot' component={CreateSpot} />
         <Route exact path='/login' component={Login} />
         <Route exact path='/register' component={Register} />
       </Switch>

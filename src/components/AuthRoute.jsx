@@ -1,10 +1,29 @@
 import React, { useEffect, useState } from 'react'
 import { Route, Redirect } from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
+import styled from 'styled-components'
 import { useAppHook } from '../contexts'
 import Nav from '../components/Nav'
 import { DISCONNECTED, AUTH_SUCCESS } from '../reducers/userReducer';
 import setAuth from '../utils/setAuth';
+import devices from '../utils/devices';
+
+const Container = styled.div`
+  width: 60%;
+  min-height: 400px;
+  border-radius: 1.1em;
+  border: 2px solid black;
+  padding: 5px;
+  margin: 0 auto;
+
+  @media ${devices.tablet} {
+    width: 90%;
+  }
+
+  @media ${devices.mobileL} {
+    width: 100%;
+  }
+`
 
 const AuthRoute = ({ component: Component, ...rest }) => {
   const { useUser } = useAppHook()
@@ -36,10 +55,10 @@ const AuthRoute = ({ component: Component, ...rest }) => {
         {!loading &&!isConnected && <Redirect to='/login' />}
         {
           !loading && isConnected &&
-          <div>
+          <Container>
             <Nav />
             <Component {...props} />
-          </div>
+          </Container>
         }
         </React.Fragment>
       )}
