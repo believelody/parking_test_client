@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Redirect, Link } from 'react-router-dom'
 import jwt_decode from 'jwt-decode'
 import styled from 'styled-components'
 import { useAppHook } from '../contexts'
@@ -18,7 +19,7 @@ const LoginStyle = styled.div`
     display: flex;
     flex-direction: column;
     width: 60%;
-    height: 200px;
+    height: auto;
     border: 2px solid black;
     border-radius: 1.2em;
     margin: auto;
@@ -32,13 +33,12 @@ const LoginStyle = styled.div`
 
   @media ${devices.mobileL} {
     width: 100%;
-    height: auto;
   }
 `
 
 const Login = () => {
   const { useUser } = useAppHook()
-  const [{errors}, dispatch] = useUser
+  const [{errors, isConnected}, dispatch] = useUser
 
   const [email, setEmail] = useState()
   const [password, setPassword] = useState()
@@ -55,28 +55,38 @@ const Login = () => {
       const decoded = jwt_decode(token)
       dispatch({ type: AUTH_SUCCESS, payload: decoded })
     } catch (error) {
-      const { email } = error.response.data
+      const { email, password } = error.response.data
       setEmail('')
       setPassword('')
-      dispatch({ type: AUTH_FAILED, payload: email})     
+      if (email) dispatch({ type: AUTH_FAILED, payload: email})     
+      if (password) dispatch({ type: AUTH_FAILED, payload: password})     
     }
   }
 
   useEffect(() => {
     if (errors) {
-      alert(errors.email)
+      if (errors.email) alert(errors.email)
+      if (errors.password) alert(errors.password)
     }
   }, [errors])
 
-  return (
+  // useEffect(() => {
+  //   if (localStorage.token) {
+  //     history.replace('/')
+  //   }
+  // }, [localStorage.token])
+
+  return !localStorage.token ?
     <LoginStyle>
       <form className='login-form' onSubmit={handleSubmit}>
-        <input type='email' placeholder='enter your email' onChange={e => setEmail(e.target.value)} />
-        <input type='password' placeholder='enter your password' onChange={e => setPassword(e.target.value)} />
+        <input required type='email' placeholder='enter your email' onChange={e => setEmail(e.target.value)} />
+        <input required type='password' placeholder='enter your password' onChange={e => setPassword(e.target.value)} />
         <input type='submit' value='Login' />
+        <Link to='/register'>Create an account</Link>
       </form>
     </LoginStyle>
-  )
+    :
+    <Redirect to='/' />
 }
 
 export default Login

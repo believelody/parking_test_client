@@ -13,7 +13,6 @@ const AuthRoute = ({ component: Component, ...rest }) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log(isConnected)
     if (localStorage.token && !isConnected) {
       setAuth(localStorage.token)
       const decoded = jwt_decode(localStorage.token)
@@ -24,8 +23,8 @@ const AuthRoute = ({ component: Component, ...rest }) => {
       else {
         dispatch({ type: AUTH_SUCCESS, payload: decoded })
       }
-      setLoading(false)
     }
+    setLoading(false)
   }, [dispatch])
 
   return (
