@@ -45,9 +45,6 @@ export default (state, { type, payload }) => {
                 selectedSpot: {...state.selectedSpot, user: payload}
             }
 
-        case DISCONNECTED:
-            return userStateInit
-
         default:
             return state;
     }

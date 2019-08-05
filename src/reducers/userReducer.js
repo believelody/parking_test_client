@@ -1,3 +1,5 @@
+import userStateInit from "../init-state/userStateInit";
+
 export const AUTH_SUCCESS = "AUTH_SUCCESS"
 export const AUTH_FAILED = "AUTH_FAILED"
 export const DISCONNECTED = "DISCONNECTED"
@@ -12,11 +14,9 @@ export default (state, { type, payload }) => {
             }
 
         case AUTH_FAILED:
-            let errors = {}
-            errors[payload.code] = payload.msg
             return {
                 ...state,
-                errors
+                errors: { ...state.errors, email: payload }
             }
 
         case DISCONNECTED:

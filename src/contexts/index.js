@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from 'react'
+import React, { createContext, useContext, useReducer } from 'react'
 import userReducer from '../reducers/userReducer';
 import spotReducer from '../reducers/spotReducer';
 import userStateInit from '../init-state/userStateInit'
