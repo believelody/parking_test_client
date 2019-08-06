@@ -7,7 +7,7 @@ export default {
     createSpot: data => axios.post(`${baseUrl}/spots`, data),
     getFreeSpots: () => axios.get(`${baseUrl}/spots/free`),
     searchByUser: userId => axios.get(`${baseUrl}/spots/search-by-user?user=${userId}`),
-    assignSpotToUser: (spotId, userId) => axios.put(`${baseUrl}/spots/${spotId}`, {userId}),
+    assignSpotToUser: (spotId, userId) => axios.put(`${baseUrl}/spots/assign/${spotId}`, {userId}),
     updateSpot: (id, data) => axios.put(`${baseUrl}/spots/${id}`, data),
     deleteSpot: id => axios.delete(`${baseUrl}/spots/${id}`)
 }

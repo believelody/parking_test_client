@@ -35,51 +35,95 @@ const SpotsStyle = styled.div`
 
 const SpotStyle = styled.li`
   border-radius: .7em;
-  background-color: #ccc;
+  border: ${props => props.occupancy ? 'none' : '1px solid #ccc'}
+  background-color: ${props => props.color};
   display: flex;
   flex-direction: column;
   padding: 12px;
 `
 
-const Spot = ({spot}) => {
-  const { useSpot, useUser } = useAppHook()
-  const [{user}, _] = useUser
-  const [{}, dispatchSpot] = useSpot
+const UserSpotStyle = styled.div``
 
-  const handleClick = async () => {
+const UserSpot = ({ spot, handleClick }) => {
+  return (
+    <UserSpotStyle>
+      <span>Your car is on spot °{spot.number} on floor {spot.floor}</span>
+      <button onClick={e => handleClick(spot)}>Free Spot</button>
+    </UserSpotStyle>
+  )
+}
+
+const Spot = ({spot, user, handleClick}) => {
+  const [color, setColor] = useState('#fff')
+
+  useEffect(() => {
+    if (spot.occupancy && user) {
+      if (spot.userId === user.id) {
+        setColor('skyblue')
+      }
+      else {
+        setColor('#ccc')
+      }
+    }
+  }, [spot.occupancy, user])
+
+  return (
+    <SpotStyle color={color} occupancy={spot.occupancy}>
+      <span>Number: {spot.number}</span>
+      <span>Floor: {spot.floor}</span>
+      <span>Occupied: {spot.occupied}</span>
+      <button onClick={e => handleClick(spot)}>Take spot</button>
+    </SpotStyle>
+  )
+}
+
+const Parking = () => {
+  const { useSpot, useUser } = useAppHook()
+  const [{ user }, _] = useUser
+  const [{ spots }, dispatch] = useSpot
+  
+  const [profile, setProfile] = useState(null)
+  const [spotFromUser, setSpot] = useState(null)
+  
+  const handleClick = async (spot) => {
     try {
-      const res = await api.spot.assignSpotToUser(spot.id, user.id)
+      let userId = !spot.occupancy ? user.id : null
+      const res = await api.spot.assignSpotToUser(spot.id, userId)
       alert(res.data.msg)
     } catch (error) {
       alert(error.data.msg)
     }
   }
 
-  return (
-    <SpotStyle>
-      <span>Number: {spot.number}</span>
-      <span>Floor: {spot.floor}</span>
-      <span>Occupied: {spot.occupied}</span>
-      {!spot.occupancy && <button onClick={handleClick}>Take spot</button>}
-    </SpotStyle>
-  )
-}
+  useEffect(() => {
+    const getUser = async () => {
+      const res = await api.user.fetchOneUser(user.id)
+      setProfile(res.data)
+    }
+    getUser()
+  }, [])
 
-const Parking = () => {
-  const { useSpot } = useAppHook()
-  const [{spots}, dispatch] = useSpot
+  useEffect(() => {    
+    const getSpotByUser = async () => {
+      const res = await api.spot.searchByUser(user.id)
+      console.log(res.data)
+      setSpot(res.data)
+    }
+    if (!spotFromUser) getSpotByUser()    
+  }, [spotFromUser, spots])
 
   useEffect(() => {
+    let data = null
     const getSpots = async () => {
-      const res = await api.spot.fetchAllSpots()
-      const { data } = res
+      const res = await api.spot.getFreeSpots()
+      data = res.data
       dispatch({ type: ALL_SPOTS, payload: data })
     }
 
-    if (spots.length === 0) {
+    if (spots.length === 0 || spots !== data) {
       getSpots()
     }
-  }, [])
+  }, [spots])
 
   return (
     <SpotsStyle>
@@ -88,7 +132,16 @@ const Parking = () => {
         <div>
           <span className='go-to-create'><Link to='/create-spot'>Create Spot</Link></span>
           <br />
-          <ul>{spots.length > 0 && spots.map(spot => <Spot key={spot.id} spot={spot} />)}</ul>
+          {
+            spotFromUser &&
+            <UserSpot spot={spotFromUser} handleClick={handleClick} />
+          }
+          {
+            !spotFromUser &&
+            <ul>
+            {spots.length > 0 && spots.map(spot => <Spot key={spot.id} spot={spot} user={profile} handleClick={handleClick} />)}
+            </ul>
+          }
         </div>
       }
     </SpotsStyle>
